@@ -23,15 +23,15 @@ body {
 
 /* Container chính chứa nội dung (Hiệu ứng Kính Mờ) */
 .container {
-    width: 90%;
-    max-width: 600px;
+    width: 90%; /* Đảm bảo luôn co giãn 90% so với body */
+    max-width: 600px; /* Giới hạn tối đa 600px trên desktop và tablet lớn */
     text-align: center;
     
-    /* Hiệu ứng Kính Mờ (Glassmorphism) */
-    background-color: rgba(255, 255, 255, 0.1); /* Nền trong suốt rất nhẹ */
+    /* Hiệu ứng Kính Mờ (Giữ nguyên) */
+    background-color: rgba(255, 255, 255, 0.1); 
     backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px); 
-    border: 1px solid rgba(255, 255, 255, 0.3); /* Viền mỏng, bán trong suốt */
+    border: 1px solid rgba(255, 255, 255, 0.3); 
     
     padding: 30px;
     border-radius: 15px;
@@ -154,21 +154,35 @@ h2 {
     }
 }
 
-/* ================================================= */
-/* MEDIA QUERIES (RESPONSIVE) */
-/* ================================================= */
 
+
+/* MEDIA QUERIES (RESPONSIVE) */
 @media (max-width: 768px) {
-    /* Đảm bảo khung nội dung chiếm toàn bộ chiều rộng trên di động */
-    .container {
-        width: 100%; 
-        max-width: 100%; 
-        padding: 30px 20px; /* Giữ padding trên dưới, giảm padding ngang */
-        border-radius: 0; /* Bỏ bo góc để liền mạch với màn hình */
-    }
     
+    /* Thiết lập lại body để nội dung nằm cao hơn */
     body {
         padding-top: 20px;
     }
+    
+    /* Đảm bảo khung nội dung chiếm toàn bộ chiều rộng trên di động */
+    .container {
+        width: 100%; 
+        max-width: 75%; /* Rất quan trọng: loại bỏ giới hạn 600px */
+        
+        /* Giảm padding ngang (trái/phải) để trông đầy màn hình hơn */
+        padding: 25px 15px; 
+        
+        /* Bỏ bo góc để liền mạch với màn hình */
+        border-radius: 10px; 
+        
+        /* Bỏ border mỏng trên điện thoại nếu bạn thấy nó thừa */
+        border-left: none;
+        border-right: none;
+    }
+    
+    /* Giảm khoảng cách giữa các thành phần trên di động */
+    h2 {
+        margin-top: 30px;
+        margin-bottom: 10px;
+    }
 }
-
