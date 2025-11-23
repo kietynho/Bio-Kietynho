@@ -84,7 +84,7 @@ h2 {
     color: #fff;
     
     /* Gradient Xanh Dương cho các nút mạng xã hội (Mặc định) */
-    background-image: linear-gradient(to right, #4facfe 0%, #00f2fe 100%); 
+    background-image: linear-gradient(to right, #1f85dd 0%, #00f2fe 100%); 
     background-size: 200% auto; 
     
     padding: 15px 20px;
@@ -104,7 +104,7 @@ h2 {
 
 /* Định kiểu riêng cho các nút trong mục My Class (Gradient Cam/Vàng) */
 .class-links .link-button {
-    background-image: linear-gradient(to right, #f5a623 0%, #f7c94d 100%); /* Màu Cam/Vàng nổi bật */
+    background-image: linear-gradient(to right, #1f85dd 0%, #00f2fe 100%); /* Màu Cam/Vàng nổi bật */
     background-size: 200% auto;
     border: none;
 }
@@ -171,3 +171,4 @@ h2 {
         padding-top: 20px;
     }
 }
+
