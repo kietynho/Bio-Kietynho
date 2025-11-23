@@ -1,4 +1,10 @@
 /* Thiết lập cơ bản cho toàn trang */
+html, body {
+    width: 100%;
+    overflow-x: hidden; /* Ngăn cuộn ngang trên thiết bị di động */
+    margin: 0;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     /* Dùng ảnh nền, thay 'background.jpg' bằng tên file ảnh của bạn */
@@ -12,53 +18,24 @@ body {
     justify-content: center;
     align-items: flex-start; 
     min-height: 100vh;
-    margin: 0;
     padding-top: 50px;
 }
 
-/* Thiết lập cơ bản cho toàn trang */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    /* Dùng ảnh nền, thay 'background.jpg' bằng tên file ảnh của bạn */
-    background-image: url="images/backgroundbio.jpeg"; 
-    background-size: cover; 
-    background-position: center center; 
-    background-repeat: no-repeat;
-    background-attachment: fixed; 
-    /* Đảm bảo nội dung căn giữa và bắt đầu từ trên */
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; 
-    min-height: 100vh;
-    margin: 0;
-    padding-top: 50px;
-}
-
-html, body {
-    width: 100%; /* Quan trọng: Chiếm 100% chiều rộng có sẵn */
-    overflow-x: hidden; /* Quan trọng: Ngăn cuộn ngang (nguyên nhân gây to khung) */
-    margin: 0;
-}
-
+/* Container chính chứa nội dung (Hiệu ứng Kính Mờ) */
 .container {
     width: 90%;
     max-width: 600px;
     text-align: center;
     
-    /* 1. NỀN TRONG SUỐT RẤT NHẸ (chỉ 10% màu nền) */
-    background-color: rgba(255, 255, 255, 0.1); 
-    
-    /* 2. HIỆU ỨNG KÍNH MỜ (Backdrop Filter) */
-    /* Làm mờ hình ảnh/nền phía sau khối container */
+    /* Hiệu ứng Kính Mờ (Glassmorphism) */
+    background-color: rgba(255, 255, 255, 0.1); /* Nền trong suốt rất nhẹ */
     backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px); /* Hỗ trợ trình duyệt Safari */
-    
-    /* 3. ĐƯỜNG VIỀN MỎNG (Tùy chọn: giúp hiệu ứng rõ hơn) */
-    border: 0.1px solid rgba(255, 255, 255, 0.3);
+    -webkit-backdrop-filter: blur(10px); 
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Viền mỏng, bán trong suốt */
     
     padding: 30px;
     border-radius: 15px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); /* Bóng đổ mạnh hơn */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); 
 }
 
 /* Ảnh đại diện */
@@ -67,20 +44,20 @@ html, body {
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 10px;
+    margin-bottom: 10px; /* Đã giảm khoảng cách với tên */
     border: 3px solid #007bff;
 }
 
-/* Tiêu đề chính */
+/* Tiêu đề chính (Tên) */
 h1 {
     color: #333;
-    margin-bottom: 2px;
+    margin-bottom: 2px; /* Đã giảm khoảng cách với tagline */
 }
 
 .tagline {
     color: #6a737d;
     font-size: 1.1em;
-    margin-bottom: 20px;
+    margin-bottom: 15px; /* Đã giảm khoảng cách với mục h2 */
 }
 
 /* Tiêu đề mục phụ (My Class, My Information) */
@@ -101,201 +78,96 @@ h2 {
     gap: 15px;
 }
 
-/* Định kiểu chung cho tất cả các nút */
+/* Định kiểu chung cho tất cả các nút (Gradient Xanh Dương) */
 .link-button {
     text-decoration: none;
     color: #fff;
-    background-color: #007bff; /* Màu mặc định: Xanh dương */
+    
+    /* Gradient Xanh Dương cho các nút mạng xã hội (Mặc định) */
+    background-image: linear-gradient(to right, #4facfe 0%, #00f2fe 100%); 
+    background-size: 200% auto; 
+    
     padding: 15px 20px;
     border-radius: 10px;
-    border: 1px solid #007bff;
+    border: none;
     font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.1s ease;
+    transition: background-position 0.5s ease, transform 0.1s ease; 
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Hiệu ứng khi di chuột qua */
 .link-button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px); 
-}
-
-/* Định kiểu riêng cho các nút trong mục My Class (màu nổi bật) */
-.class-links .link-button {
-    background-color: #f5a623; /* Màu Cam */
-    border-color: #f5a623;
-}
-.class-links .link-button:hover {
-    background-color: #e3951f;
-}
-
-/* Thiết kế cho màn hình điện thoại nhỏ hơn */
-@media (max-width: 768px) {
-    /* Điều chỉnh khung chứa nội dung */
-    .container {
-        width: 95%; /* Tăng chiều rộng để tận dụng tối đa màn hình */
-        max-width: 100%; /* Đảm bảo không vượt quá 100% */
-        padding: 20px 10px; /* Giảm padding ngang (trái/phải) */
-        
-        /* Đảm bảo nội dung luôn ở giữa nếu có lỗi căn chỉnh */
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    /* Tùy chọn: Giảm kích thước chữ để dễ đọc hơn trên màn hình nhỏ */
-    h1 {
-        font-size: 1.8em;
-    }
-    .tagline {
-        font-size: 1em;
-    }
-    
-    /* Tùy chọn: Giảm khoảng cách cho các nút (gap) */
-    .links {
-        gap: 10px;
-    }
-}
-
-/* Ảnh đại diện */
-.avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 20px;
-    border: 3px solid #007bff;
-}
-
-/* Tiêu đề chính */
-h1 {
-    color: #333;
-    margin-bottom: 5px;
-}
-
-.tagline {
-    color: #6a737d;
-    font-size: 1.1em;
-    margin-bottom: 30px;
-}
-
-/* Tiêu đề mục phụ (My Class, My Information) */
-h2 {
-    color: #4a4a4a; 
-    font-size: 1.2em;
-    margin-top: 40px; 
-    margin-bottom: 15px; 
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 600;
-}
-
-/* Khối chung chứa các nút liên kết */
-.links {
-    display: flex;
-    flex-direction: column; 
-    gap: 15px;
-}
-
-/* Định kiểu chung cho tất cả các nút */
-.link-button {
-    text-decoration: none;
-    color: #fff;
-    
-    /* ---------------------------------------------------- */
-    /* THAY THẾ MÀU ĐƠN SẮC BẰNG GRADIENT XANH DƯƠNG */
-    background-image: linear-gradient(to right, #0e81e6 0%, #00f2fe 100%); /* Xanh dương đậm -> Xanh dương nhạt */
-    background-size: 200% auto; /* Chuẩn bị cho hiệu ứng hover */
-    /* ---------------------------------------------------- */
-    
-    padding: 15px 20px;
-    border-radius: 10px;
-    /* Bỏ border: 1px solid #007bff; để tránh đụng độ màu */
-    border: none; 
-    font-weight: bold;
-    transition: background-position 0.5s ease, transform 0.1s ease; /* Thay đổi thuộc tính transition */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Hiệu ứng khi di chuột qua */
-.link-button:hover {
-    background-position: right center; /* Di chuyển gradient để tạo hiệu ứng */
+    background-position: right center; /* Di chuyển gradient */
     transform: translateY(-2px); 
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Định kiểu riêng cho các nút trong mục My Class (màu nổi bật) */
+/* Định kiểu riêng cho các nút trong mục My Class (Gradient Cam/Vàng) */
 .class-links .link-button {
-    background-color: #f5a623; /* Màu Cam */
-    border-color: #f5a623;
+    background-image: linear-gradient(to right, #f5a623 0%, #f7c94d 100%); /* Màu Cam/Vàng nổi bật */
+    background-size: 200% auto;
+    border: none;
 }
 .class-links .link-button:hover {
-    background-color: #e3951f;
+    background-position: right center;
 }
 
-/* Thiết kế cho màn hình điện thoại nhỏ hơn */
-@media (max-width: 768px) {
-    /* Điều chỉnh khung chứa nội dung */
-    .container {
-        width: 95%; /* Tăng chiều rộng để tận dụng tối đa màn hình */
-        max-width: 100%; /* Đảm bảo không vượt quá 100% */
-        padding: 20px 10px; /* Giảm padding ngang (trái/phải) */
-        
-        /* Đảm bảo nội dung luôn ở giữa nếu có lỗi căn chỉnh */
-        margin-left: auto;
-        margin-right: auto;
-    }
+/* ================================================= */
+/* HIỆU ỨNG HẠT LẤP LÁNH (Dùng cho script.js) */
+/* ================================================= */
 
-    /* Tùy chọn: Giảm kích thước chữ để dễ đọc hơn trên màn hình nhỏ */
-    h1 {
-        font-size: 1.8em;
-    }
-    .tagline {
-        font-size: 1em;
-    }
-    
-    /* Tùy chọn: Giảm khoảng cách cho các nút (gap) */
-    .links {
-        gap: 10px;
-    }
-}
-
-/* CONTAINER CHỨA CÁC HẠT (Particles) */
 .particles-container {
-    position: fixed; /* Giữ cố định trên toàn màn hình */
+    position: fixed; 
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Quan trọng: Cho phép người dùng nhấp xuyên qua các hạt */
-    overflow: hidden; /* Giấu các hạt ra ngoài màn hình */
-    z-index: -1; /* Đặt dưới nội dung chính */
+    pointer-events: none; 
+    overflow: hidden; 
+    z-index: -1; 
 }
 
-/* ĐỊNH KIỂU CHO MỘT HẠT LẤP LÁNH */
 .particle {
     position: absolute;
-    background-color: #ffffff; /* Màu trắng lấp lánh */
+    background-color: #ffffff; 
     border-radius: 50%;
-    opacity: 0; /* Bắt đầu với độ mờ bằng 0 */
+    opacity: 0; 
     animation-name: sparkle-anim;
     animation-timing-function: linear;
-    animation-fill-mode: forwards; /* Giữ trạng thái cuối của animation */
+    animation-fill-mode: forwards; 
 }
 
-/* KEYFRAMES: ĐỊNH NGHĨA CHUYỂN ĐỘNG CHO HẠT */
 @keyframes sparkle-anim {
     0% {
-        transform: translate(0, 0) scale(0.5); /* Bắt đầu nhỏ */
+        transform: translate(0, 0) scale(0.5); 
         opacity: 0;
     }
     10% {
-        opacity: 1; /* Nhanh chóng sáng lên */
+        opacity: 1; 
     }
     90% {
         opacity: 0.5;
     }
     100% {
-        transform: translate(var(--x-end), var(--y-end)) scale(0); /* Kết thúc di chuyển và biến mất */
+        transform: translate(var(--x-end), var(--y-end)) scale(0); 
         opacity: 0;
+    }
+}
+
+/* ================================================= */
+/* MEDIA QUERIES (RESPONSIVE) */
+/* ================================================= */
+
+@media (max-width: 768px) {
+    /* Đảm bảo khung nội dung chiếm toàn bộ chiều rộng trên di động */
+    .container {
+        width: 100%; 
+        max-width: 100%; 
+        padding: 30px 20px; /* Giữ padding trên dưới, giảm padding ngang */
+        border-radius: 0; /* Bỏ bo góc để liền mạch với màn hình */
+    }
+    
+    body {
+        padding-top: 20px;
     }
 }
