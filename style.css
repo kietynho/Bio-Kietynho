@@ -34,6 +34,12 @@ body {
     padding-top: 50px;
 }
 
+html, body {
+    width: 100%; /* Quan trọng: Chiếm 100% chiều rộng có sẵn */
+    overflow-x: hidden; /* Quan trọng: Ngăn cuộn ngang (nguyên nhân gây to khung) */
+    margin: 0;
+}
+
 .container {
     width: 90%;
     max-width: 600px;
@@ -124,9 +130,29 @@ h2 {
 }
 
 /* Thiết kế cho màn hình điện thoại nhỏ hơn */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+    /* Điều chỉnh khung chứa nội dung */
     .container {
-        padding: 20px 15px;
+        width: 95%; /* Tăng chiều rộng để tận dụng tối đa màn hình */
+        max-width: 100%; /* Đảm bảo không vượt quá 100% */
+        padding: 20px 10px; /* Giảm padding ngang (trái/phải) */
+        
+        /* Đảm bảo nội dung luôn ở giữa nếu có lỗi căn chỉnh */
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Tùy chọn: Giảm kích thước chữ để dễ đọc hơn trên màn hình nhỏ */
+    h1 {
+        font-size: 1.8em;
+    }
+    .tagline {
+        font-size: 1em;
+    }
+    
+    /* Tùy chọn: Giảm khoảng cách cho các nút (gap) */
+    .links {
+        gap: 10px;
     }
 }
 
