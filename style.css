@@ -61,20 +61,20 @@ body {
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     border: 3px solid #007bff;
 }
 
 /* Tiêu đề chính */
 h1 {
     color: #333;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
 }
 
 .tagline {
     color: #6a737d;
     font-size: 1.1em;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 /* Tiêu đề mục phụ (My Class, My Information) */
@@ -207,9 +207,29 @@ h2 {
 }
 
 /* Thiết kế cho màn hình điện thoại nhỏ hơn */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+    /* Điều chỉnh khung chứa nội dung */
     .container {
-        padding: 20px 15px;
+        width: 95%; /* Tăng chiều rộng để tận dụng tối đa màn hình */
+        max-width: 100%; /* Đảm bảo không vượt quá 100% */
+        padding: 20px 10px; /* Giảm padding ngang (trái/phải) */
+        
+        /* Đảm bảo nội dung luôn ở giữa nếu có lỗi căn chỉnh */
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Tùy chọn: Giảm kích thước chữ để dễ đọc hơn trên màn hình nhỏ */
+    h1 {
+        font-size: 1.8em;
+    }
+    .tagline {
+        font-size: 1em;
+    }
+    
+    /* Tùy chọn: Giảm khoảng cách cho các nút (gap) */
+    .links {
+        gap: 10px;
     }
 }
 
