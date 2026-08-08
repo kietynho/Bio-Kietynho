@@ -14,67 +14,103 @@ const retakeBtn = document.getElementById("retake-btn");
 
 const downloadBtn = document.getElementById("download-btn");
 
-const cameraPlaceholder =
+const cameraPlaceholder = document.getElementById("camera-placeholder");
 
-    document.getElementById("camera-placeholder");
+const previewPlaceholder = document.getElementById("preview-placeholder");
 
-const previewPlaceholder =
+const countdown = document.getElementById("countdown");
 
-    document.getElementById("preview-placeholder");
+const captureStatus = document.getElementById("capture-status");
 
-const frameItems =
+const frameItems = document.querySelectorAll(".frame-item");
 
-    document.querySelectorAll(".frame-item");
+const photoElements = [
 
-// ==========================================
+    document.getElementById("photo-1"),
 
-// VARIABLES
+    document.getElementById("photo-2"),
 
-// ==========================================
+    document.getElementById("photo-3")
+
+];
 
 let stream = null;
 
 let facingMode = "user";
 
-let selectedFrame = "none";
-
-let capturedImage = null;
+let selectedFrame = null;
 
 let frameImage = null;
 
-// ==========================================
+let photos = [];
 
-// CAMERA
+let currentPhoto = 0;
 
-// ==========================================
+let isCounting = false;
+
+const FRAME_PATHS = {
+
+    frame1: "frames/frame1.png",
+
+    frame2: "frames/frame2.png",
+
+    frame3: "frames/frame3.png"
+
+};
+
+function updateCaptureButton() {
+
+    if (!selectedFrame) {
+
+        captureBtn.disabled = true;
+
+        captureBtn.textContent = "Chọn khung trước";
+
+        return;
+
+    }
+
+    if (!stream) {
+
+        captureBtn.disabled = true;
+
+        captureBtn.textContent = "Bật camera trước";
+
+        return;
+
+    }
+
+    if (photos.length >= 3) {
+
+        captureBtn.disabled = true;
+
+        captureBtn.textContent = "Đã chụp đủ 3 ảnh";
+
+        return;
+
+    }
+
+    captureBtn.disabled = false;
+
+    captureBtn.textContent = `Chụp ảnh ${photos.length + 1}`;
+
+}
 
 async function startCamera() {
 
     try {
 
-        // Kiểm tra trình duyệt
+        if (!navigator.mediaDevices ||
 
-        if (!navigator.mediaDevices) {
+            !navigator.mediaDevices.getUserMedia) {
 
             throw new Error(
 
-                "Trình duyệt không hỗ trợ mediaDevices."
+                "Trình duyệt không hỗ trợ camera."
 
             );
 
         }
-
-        if (!navigator.mediaDevices.getUserMedia) {
-
-            throw new Error(
-
-                "Trình duyệt không hỗ trợ getUserMedia."
-
-            );
-
-        }
-
-        // Dừng camera cũ
 
         stopCamera();
 
@@ -82,49 +118,29 @@ async function startCamera() {
 
         startCameraBtn.textContent = "Đang mở camera...";
 
-        // Cấu hình camera đơn giản,
-
-        // tương thích tốt hơn với Safari iPhone
-
-        const constraints = {
+        stream = await navigator.mediaDevices.getUserMedia({
 
             audio: false,
 
             video: {
 
-                facingMode: facingMode
+                facingMode: facingMode,
+
+                width: {
+
+                    ideal: 1920
+
+                },
+
+                height: {
+
+                    ideal: 1080
+
+                }
 
             }
 
-        };
-
-        console.log(
-
-            "Đang yêu cầu camera:",
-
-            constraints
-
-        );
-
-        // Xin quyền camera
-
-        stream =
-
-            await navigator.mediaDevices.getUserMedia(
-
-                constraints
-
-            );
-
-        console.log(
-
-            "Camera stream:",
-
-            stream
-
-        );
-
-        // Gắn stream vào video
+        });
 
         video.srcObject = stream;
 
@@ -134,109 +150,63 @@ async function startCamera() {
 
         video.playsInline = true;
 
-        // Safari đôi khi cần play()
-
         await video.play();
-
-        // Camera đã hoạt động
 
         cameraPlaceholder.style.display = "none";
 
-        startCameraBtn.textContent =
-
-            "Camera đang bật";
-
         startCameraBtn.disabled = false;
 
-        captureBtn.disabled = false;
+        startCameraBtn.textContent = "Camera đang bật";
 
         switchCameraBtn.disabled = false;
 
+        updateCaptureButton();
+
     } catch (error) {
 
-        console.error(
-
-            "CAMERA ERROR:",
-
-            error
-
-        );
+        console.error(error);
 
         startCameraBtn.disabled = false;
 
-        startCameraBtn.textContent =
+        startCameraBtn.textContent = "Bật camera";
 
-            "Bật camera";
+        let message = "Không thể bật camera.";
 
-        let message =
+        if (error.name === "NotAllowedError") {
 
-            "Không thể bật camera.";
+            message =
 
-        switch (error.name) {
+                "Camera bị từ chối quyền.\n\n" +
 
-            case "NotAllowedError":
+                "Hãy cho phép Camera trong Safari.";
 
-                message =
+        } else if (error.name === "NotFoundError") {
 
-                    "Camera bị từ chối quyền.\n\n" +
+            message = "Không tìm thấy camera.";
 
-                    "Hãy kiểm tra quyền Camera của Safari.";
+        } else if (error.name === "NotReadableError") {
 
-                break;
+            message =
 
-            case "NotFoundError":
+                "Camera đang được ứng dụng khác sử dụng.";
 
-                message =
+        } else if (error.name === "SecurityError") {
 
-                    "Không tìm thấy camera trên thiết bị.";
+            message =
 
-                break;
+                "Trình duyệt chặn quyền truy cập camera.";
 
-            case "NotReadableError":
+        } else {
 
-                message =
+            message +=
 
-                    "Camera đang được ứng dụng khác sử dụng.";
+                "\n\n" +
 
-                break;
+                error.name +
 
-            case "SecurityError":
+                "\n" +
 
-                message =
-
-                    "Trình duyệt chặn camera vì lý do bảo mật.";
-
-                break;
-
-            case "AbortError":
-
-                message =
-
-                    "Safari đã hủy việc mở camera.";
-
-                break;
-
-            case "OverconstrainedError":
-
-                message =
-
-                    "Camera không hỗ trợ cấu hình yêu cầu.";
-
-                break;
-
-            default:
-
-                message =
-
-                    "Lỗi camera:\n\n" +
-
-                    error.name +
-
-                    "\n" +
-
-                    error.message;
-
-                break;
+                error.message;
 
         }
 
@@ -246,49 +216,29 @@ async function startCamera() {
 
 }
 
-// ==========================================
-
-// STOP CAMERA
-
-// ==========================================
-
 function stopCamera() {
 
-    if (!stream) {
+    if (stream) {
 
-        return;
-
-    }
-
-    stream
-
-        .getTracks()
-
-        .forEach(track => {
+        stream.getTracks().forEach(track => {
 
             track.stop();
 
         });
 
+    }
+
     stream = null;
 
-    if (video.srcObject) {
+    video.srcObject = null;
 
-        video.srcObject = null;
-
-    }
+    switchCameraBtn.disabled = true;
 
 }
 
-// ==========================================
-
-// SWITCH CAMERA
-
-// ==========================================
-
 async function switchCamera() {
 
-    if (!stream) {
+    if (!stream || isCounting) {
 
         return;
 
@@ -306,29 +256,115 @@ async function switchCamera() {
 
 }
 
-// ==========================================
+function selectFrame(frameName) {
 
-// CAPTURE PHOTO
+    selectedFrame = frameName;
 
-// ==========================================
+    frameItems.forEach(item => {
 
-function capturePhoto() {
+        item.classList.toggle(
 
-    if (!stream) {
+            "active",
 
-        alert("Hãy bật camera trước.");
+            item.dataset.frame === frameName
 
-        return;
+        );
+
+    });
+
+    frameImage = new Image();
+
+    frameImage.onload = () => {
+
+        captureStatus.textContent =
+
+            "Đã chọn khung. Bạn có thể bắt đầu chụp.";
+
+        updateCaptureButton();
+
+    };
+
+    frameImage.onerror = () => {
+
+        frameImage = null;
+
+        captureStatus.textContent =
+
+            "Không thể tải khung ảnh.";
+
+        captureBtn.disabled = true;
+
+    };
+
+    frameImage.src = FRAME_PATHS[frameName];
+
+}
+
+function wait(ms) {
+
+    return new Promise(resolve => {
+
+        setTimeout(resolve, ms);
+
+    });
+
+}
+
+async function countdownBeforePhoto(photoNumber) {
+
+    isCounting = true;
+
+    captureBtn.disabled = true;
+
+    switchCameraBtn.disabled = true;
+
+    startCameraBtn.disabled = true;
+
+    captureStatus.textContent =
+
+        `Đang chụp ảnh ${photoNumber}`;
+
+    countdown.style.display = "flex";
+
+    for (let number = 3; number >= 1; number--) {
+
+        countdown.textContent = number;
+
+        await wait(1000);
 
     }
 
-    if (video.readyState < 2) {
+    countdown.textContent = "";
 
-        alert("Camera chưa sẵn sàng.");
+    countdown.style.display = "none";
 
-        return;
+    takePhoto(photoNumber);
+
+    isCounting = false;
+
+    startCameraBtn.disabled = false;
+
+    switchCameraBtn.disabled = false;
+
+    if (photos.length < 3) {
+
+        captureStatus.textContent =
+
+            `Ảnh ${photoNumber} đã chụp. Nhấn nút để chụp ảnh tiếp theo.`;
+
+    } else {
+
+        captureStatus.textContent =
+
+            "Đã chụp đủ 3 ảnh. Ảnh đã được ghép vào khung.";
 
     }
+
+    updateCaptureButton();
+
+}
+
+function takePhoto(photoNumber) {
 
     const width = video.videoWidth;
 
@@ -336,25 +372,17 @@ function capturePhoto() {
 
     if (!width || !height) {
 
-        alert(
-
-            "Không lấy được độ phân giải camera."
-
-        );
+        alert("Không lấy được hình ảnh từ camera.");
 
         return;
 
     }
 
-    // Canvas ảnh gốc
-
     canvas.width = width;
 
     canvas.height = height;
 
-    const ctx =
-
-        canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
 
     ctx.clearRect(
 
@@ -370,25 +398,11 @@ function capturePhoto() {
 
     ctx.save();
 
-    // Camera trước: lật ảnh giống preview
-
     if (facingMode === "user") {
 
-        ctx.translate(
+        ctx.translate(width, 0);
 
-            width,
-
-            0
-
-        );
-
-        ctx.scale(
-
-            -1,
-
-            1
-
-        );
+        ctx.scale(-1, 1);
 
     }
 
@@ -408,19 +422,7 @@ function capturePhoto() {
 
     ctx.restore();
 
-    // Chuyển thành Image
-
-    capturedImage =
-
-        new Image();
-
-    capturedImage.onload = () => {
-
-        renderResult();
-
-    };
-
-    capturedImage.src =
+    const imageData =
 
         canvas.toDataURL(
 
@@ -430,221 +432,123 @@ function capturePhoto() {
 
         );
 
-    // Hiển thị preview
+    photos[photoNumber - 1] = imageData;
 
-    previewPlaceholder.style.display =
+    photoElements[photoNumber - 1].src =
 
-        "none";
+        imageData;
 
-    retakeBtn.disabled = false;
+    photoElements[photoNumber - 1].style.display =
 
-    downloadBtn.disabled = false;
+        "block";
 
-    // Cuộn xuống ảnh
+    if (photos.length === 3) {
 
-    document
+        renderFinalImage();
 
-        .querySelector(".preview-section")
+        downloadBtn.disabled = false;
 
-        ?.scrollIntoView({
+        retakeBtn.disabled = false;
 
-            behavior: "smooth",
+        document
 
-            block: "center"
+            .querySelector(".preview-section")
 
-        });
+            .scrollIntoView({
+
+                behavior: "smooth",
+
+                block: "center"
+
+            });
+
+    }
 
 }
 
-// ==========================================
+function drawCoverImage(
 
-// FRAME SELECTION
+    ctx,
 
-// ==========================================
+    image,
 
-frameItems.forEach(item => {
+    x,
 
-    item.addEventListener(
+    y,
 
-        "click",
+    width,
 
-        () => {
+    height
 
-            // Bỏ active khỏi tất cả
+) {
 
-            frameItems.forEach(
+    const imageRatio =
 
-                frame => {
+        image.naturalWidth /
 
-                    frame.classList.remove(
+        image.naturalHeight;
 
-                        "active"
+    const targetRatio =
 
-                    );
+        width / height;
 
-                }
+    let sourceWidth =
 
-            );
+        image.naturalWidth;
 
-            // Active frame hiện tại
+    let sourceHeight =
 
-            item.classList.add(
+        image.naturalHeight;
 
-                "active"
+    let sourceX = 0;
 
-            );
+    let sourceY = 0;
 
-            selectedFrame =
+    if (imageRatio > targetRatio) {
 
-                item.dataset.frame;
+        sourceWidth =
 
-            loadSelectedFrame();
+            image.naturalHeight *
 
-        }
+            targetRatio;
 
-    );
+        sourceX =
 
-});
+            (image.naturalWidth -
 
-// ==========================================
+                sourceWidth) / 2;
 
-// LOAD FRAME
+    } else {
 
-// ==========================================
+        sourceHeight =
 
-function loadSelectedFrame() {
+            image.naturalWidth /
 
-    // Không sử dụng frame
+            targetRatio;
 
-    if (selectedFrame === "none") {
+        sourceY =
 
-        frameImage = null;
+            (image.naturalHeight -
 
-        renderResult();
-
-        return;
+                sourceHeight) / 2;
 
     }
-
-    const item =
-
-        document.querySelector(
-
-            `.frame-item[data-frame="${selectedFrame}"]`
-
-        );
-
-    if (!item) {
-
-        return;
-
-    }
-
-    const img =
-
-        item.querySelector("img");
-
-    if (!img) {
-
-        return;
-
-    }
-
-    frameImage =
-
-        new Image();
-
-    frameImage.onload = () => {
-
-        renderResult();
-
-    };
-
-    frameImage.onerror = () => {
-
-        console.error(
-
-            "Không thể tải frame:",
-
-            img.src
-
-        );
-
-        frameImage = null;
-
-        renderResult();
-
-    };
-
-    frameImage.src =
-
-        img.src;
-
-}
-
-// ==========================================
-
-// RENDER RESULT
-
-// ==========================================
-
-function renderResult() {
-
-    // Chưa chụp ảnh
-
-    if (!capturedImage) {
-
-        return;
-
-    }
-
-    const width =
-
-        capturedImage.naturalWidth;
-
-    const height =
-
-        capturedImage.naturalHeight;
-
-    if (!width || !height) {
-
-        return;
-
-    }
-
-    // Canvas kết quả giữ nguyên
-
-    // độ phân giải ảnh camera
-
-    resultCanvas.width = width;
-
-    resultCanvas.height = height;
-
-    const ctx =
-
-        resultCanvas.getContext("2d");
-
-    ctx.clearRect(
-
-        0,
-
-        0,
-
-        width,
-
-        height
-
-    );
-
-    // Vẽ ảnh
 
     ctx.drawImage(
 
-        capturedImage,
+        image,
 
-        0,
+        sourceX,
 
-        0,
+        sourceY,
+
+        sourceWidth,
+
+        sourceHeight,
+
+        x,
+
+        y,
 
         width,
 
@@ -652,9 +556,117 @@ function renderResult() {
 
     );
 
-    // Vẽ frame lên trên
+}
 
-    if (frameImage) {
+function loadImage(src) {
+
+    return new Promise((resolve, reject) => {
+
+        const image = new Image();
+
+        image.onload = () => resolve(image);
+
+        image.onerror = reject;
+
+        image.src = src;
+
+    });
+
+}
+
+async function renderFinalImage() {
+
+    if (
+
+        photos.length !== 3 ||
+
+        !frameImage
+
+    ) {
+
+        return;
+
+    }
+
+    try {
+
+        const images = await Promise.all(
+
+            photos.map(src => loadImage(src))
+
+        );
+
+        const width =
+
+            frameImage.naturalWidth;
+
+        const height =
+
+            frameImage.naturalHeight;
+
+        resultCanvas.width = width;
+
+        resultCanvas.height = height;
+
+        const ctx =
+
+            resultCanvas.getContext("2d");
+
+        ctx.clearRect(
+
+            0,
+
+            0,
+
+            width,
+
+            height
+
+        );
+
+        const slotHeight =
+
+            height / 3;
+
+        for (let i = 0; i < 3; i++) {
+
+            const y =
+
+                Math.round(
+
+                    i * slotHeight
+
+                );
+
+            const nextY =
+
+                Math.round(
+
+                    (i + 1) * slotHeight
+
+                );
+
+            const h =
+
+                nextY - y;
+
+            drawCoverImage(
+
+                ctx,
+
+                images[i],
+
+                0,
+
+                y,
+
+                width,
+
+                h
+
+            );
+
+        }
 
         ctx.drawImage(
 
@@ -670,21 +682,93 @@ function renderResult() {
 
         );
 
+        previewPlaceholder.style.display =
+
+            "none";
+
+    } catch (error) {
+
+        console.error(
+
+            "Lỗi ghép ảnh:",
+
+            error
+
+        );
+
+        alert(
+
+            "Không thể ghép ảnh."
+
+        );
+
     }
 
 }
 
-// ==========================================
+async function capturePhoto() {
 
-// RETAKE
+    if (!selectedFrame) {
 
-// ==========================================
+        alert(
 
-function retakePhoto() {
+            "Vui lòng chọn khung trước khi chụp."
 
-    capturedImage = null;
+        );
 
-    frameImage = null;
+        return;
+
+    }
+
+    if (!stream) {
+
+        alert(
+
+            "Vui lòng bật camera trước."
+
+        );
+
+        return;
+
+    }
+
+    if (isCounting) {
+
+        return;
+
+    }
+
+    if (photos.length >= 3) {
+
+        return;
+
+    }
+
+    const photoNumber =
+
+        photos.length + 1;
+
+    await countdownBeforePhoto(
+
+        photoNumber
+
+    );
+
+}
+
+function resetPhotos() {
+
+    photos = [];
+
+    currentPhoto = 0;
+
+    for (const image of photoElements) {
+
+        image.removeAttribute("src");
+
+        image.style.display = "none";
+
+    }
 
     resultCanvas.width = 1;
 
@@ -694,11 +778,25 @@ function retakePhoto() {
 
         "flex";
 
-    retakeBtn.disabled = true;
-
     downloadBtn.disabled = true;
 
-    // Nếu camera đã bị tắt
+    retakeBtn.disabled = true;
+
+    captureStatus.textContent =
+
+        selectedFrame
+
+            ? "Đã chọn khung. Bạn có thể bắt đầu chụp."
+
+            : "Chọn khung trước khi chụp";
+
+    updateCaptureButton();
+
+}
+
+function retakePhoto() {
+
+    resetPhotos();
 
     if (!stream) {
 
@@ -716,33 +814,23 @@ function retakePhoto() {
 
 }
 
-// ==========================================
-
-// DOWNLOAD PHOTO
-
-// ==========================================
-
 function downloadPhoto() {
-
-    if (!capturedImage) {
-
-        alert(
-
-            "Bạn chưa chụp ảnh."
-
-        );
-
-        return;
-
-    }
 
     if (
 
         !resultCanvas.width ||
 
-        !resultCanvas.height
+        !resultCanvas.height ||
+
+        photos.length !== 3
 
     ) {
+
+        alert(
+
+            "Bạn chưa hoàn thành 3 ảnh."
+
+        );
 
         return;
 
@@ -772,13 +860,13 @@ function downloadPhoto() {
 
                 document.createElement("a");
 
-            const now =
+            const date =
 
                 new Date();
 
             const timestamp =
 
-                now
+                date
 
                     .toISOString()
 
@@ -796,11 +884,7 @@ function downloadPhoto() {
 
                 `photobooth-${timestamp}.png`;
 
-            document.body.appendChild(
-
-                link
-
-            );
+            document.body.appendChild(link);
 
             link.click();
 
@@ -820,11 +904,31 @@ function downloadPhoto() {
 
 }
 
-// ==========================================
+frameItems.forEach(item => {
 
-// BUTTON EVENTS
+    item.addEventListener(
 
-// ==========================================
+        "click",
+
+        () => {
+
+            if (isCounting) {
+
+                return;
+
+            }
+
+            selectFrame(
+
+                item.dataset.frame
+
+            );
+
+        }
+
+    );
+
+});
 
 startCameraBtn.addEventListener(
 
@@ -866,12 +970,6 @@ downloadBtn.addEventListener(
 
 );
 
-// ==========================================
-
-// PAGE VISIBILITY
-
-// ==========================================
-
 document.addEventListener(
 
     "visibilitychange",
@@ -888,37 +986,29 @@ document.addEventListener(
 
 );
 
-// ==========================================
-
-// CLEANUP
-
-// ==========================================
-
 window.addEventListener(
 
     "beforeunload",
 
-    () => {
-
-        stopCamera();
-
-    }
+    stopCamera
 
 );
-
-// ==========================================
-
-// INITIAL STATE
-
-// ==========================================
 
 cameraPlaceholder.style.display =
 
     "flex";
 
+countdown.style.display =
+
+    "none";
+
 previewPlaceholder.style.display =
 
     "flex";
+
+captureStatus.textContent =
+
+    "Chọn khung trước khi chụp";
 
 captureBtn.disabled = true;
 
@@ -927,3 +1017,9 @@ switchCameraBtn.disabled = true;
 retakeBtn.disabled = true;
 
 downloadBtn.disabled = true;
+
+photoElements.forEach(image => {
+
+    image.style.display = "none";
+
+});
