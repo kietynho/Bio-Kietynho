@@ -50,11 +50,11 @@ let isCounting = false;
 
 const FRAME_PATHS = {
 
-    frame1: "frames/frame1.png",
+    frame1: "images/frame1.png",
 
-    frame2: "frames/frame2.png",
+    frame2: "images/frame2.png",
 
-    frame3: "frames/frame3.png"
+    frame3: "images/frame3.png"
 
 };
 
