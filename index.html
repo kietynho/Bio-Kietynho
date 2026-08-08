@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-
 <html lang="vi">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#f5f5f7">
 
     <title>Photo Booth</title>
 
@@ -18,195 +15,211 @@
 
 <body>
 
-    <main class="app">
+<main class="app">
 
-        <!-- Header -->
+    <header class="app-header">
 
-        <header class="app-header">
+        <h1>Photo Booth</h1>
 
-            <h1>Photo Booth</h1>
+    </header>
 
-        </header>
+    <section class="camera-section">
 
-        <!-- Camera -->
+        <div class="camera-container">
 
-        <section class="camera-section">
+            <video id="camera" autoplay playsinline muted></video>
 
-            <div class="camera-container">
+            <div id="camera-placeholder" class="camera-placeholder">
 
-                <video
-
-                    id="camera"
-
-                    autoplay
-
-                    playsinline
-
-                    muted>
-
-                </video>
-
-                <canvas id="canvas"></canvas>
-
-                <div id="camera-placeholder" class="camera-placeholder">
-
-                    <span>Camera chưa được bật</span>
-
-                </div>
+                <span>Camera chưa được bật</span>
 
             </div>
 
-            <div class="camera-controls">
+            <div id="countdown" class="countdown"></div>
 
-                <button id="start-camera" type="button">
+        </div>
 
-                    Bật camera
+        <div id="capture-status" class="capture-status">
 
-                </button>
+            Chọn khung trước khi chụp
 
-                <button id="capture-btn" type="button" disabled>
+        </div>
 
-                    Chụp ảnh
+        <div class="camera-controls">
 
-                </button>
+            <button id="capture-btn" type="button" disabled>
 
-                <button id="switch-camera" type="button" disabled>
+                Chụp ảnh 1
 
-                    Đổi camera
+            </button>
 
-                </button>
+            <button id="start-camera" type="button">
 
-            </div>
+                Bật camera
 
-        </section>
+            </button>
 
-        <!-- Frame selection -->
+            <button id="switch-camera" type="button" disabled>
 
-        <section class="frame-section">
+                Đổi camera
 
-            <h2>Chọn khung</h2>
+            </button>
 
-            <div id="frame-list" class="frame-list">
+        </div>
 
-                <button
+    </section>
 
-                    class="frame-item active"
+    <section class="frame-section">
 
-                    type="button"
+        <h2>Chọn khung</h2>
 
-                    data-frame="none">
+        <p class="frame-warning">
 
-                    <span>Không khung</span>
+            Chọn khung trước khi chụp
 
-                </button>
+        </p>
 
-                <button
+        <div id="frame-list" class="frame-list">
 
-                    class="frame-item"
+            <button
 
-                    type="button"
+                class="frame-item"
 
-                    data-frame="frame1">
+                type="button"
 
-                    <img
+                data-frame="frame1">
 
-                        src="frames/frame1.png"
+                <img
 
-                        alt="Khung 1">
+                    src="frames/frame1.png"
 
-                </button>
+                    alt="Khung 1">
 
-                <button
+            </button>
 
-                    class="frame-item"
+            <button
 
-                    type="button"
+                class="frame-item"
 
-                    data-frame="frame2">
+                type="button"
 
-                    <img
+                data-frame="frame2">
 
-                        src="frames/frame2.png"
+                <img
 
-                        alt="Khung 2">
+                    src="frames/frame2.png"
 
-                </button>
+                    alt="Khung 2">
 
-                <button
+            </button>
 
-                    class="frame-item"
+            <button
 
-                    type="button"
+                class="frame-item"
 
-                    data-frame="frame3">
+                type="button"
 
-                    <img
+                data-frame="frame3">
 
-                        src="frames/frame3.png"
+                <img
 
-                        alt="Khung 3">
+                    src="frames/frame3.png"
 
-                </button>
+                    alt="Khung 3">
 
-            </div>
+            </button>
 
-        </section>
+        </div>
 
-        <!-- Preview -->
+    </section>
 
-        <section class="preview-section">
+    <section class="photos-section">
 
-            <h2>Ảnh đã chụp</h2>
+        <h2>Ảnh đã chụp</h2>
 
-            <div class="preview-container">
+        <div class="photos-grid">
 
-                <canvas id="result-canvas"></canvas>
+            <div class="photo-slot">
 
-                <div
+                <span>Ảnh 1</span>
 
-                    id="preview-placeholder"
-
-                    class="preview-placeholder">
-
-                    <span>Ảnh sẽ xuất hiện ở đây</span>
-
-                </div>
+                <img id="photo-1" alt="Ảnh 1">
 
             </div>
 
-            <div class="result-controls">
+            <div class="photo-slot">
 
-                <button
+                <span>Ảnh 2</span>
 
-                    id="retake-btn"
-
-                    type="button"
-
-                    disabled>
-
-                    Chụp lại
-
-                </button>
-
-                <button
-
-                    id="download-btn"
-
-                    type="button"
-
-                    disabled>
-
-                    Tải ảnh
-
-                </button>
+                <img id="photo-2" alt="Ảnh 2">
 
             </div>
 
-        </section>
+            <div class="photo-slot">
 
-    </main>
+                <span>Ảnh 3</span>
 
-    <script src="main.js"></script>
+                <img id="photo-3" alt="Ảnh 3">
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="preview-section">
+
+        <h2>Ảnh đã ghép</h2>
+
+        <div class="preview-container">
+
+            <canvas id="result-canvas"></canvas>
+
+            <div
+
+                id="preview-placeholder"
+
+                class="preview-placeholder">
+
+                <span>Ảnh đã ghép sẽ xuất hiện ở đây</span>
+
+            </div>
+
+        </div>
+
+        <div class="result-controls">
+
+            <button
+
+                id="retake-btn"
+
+                type="button"
+
+                disabled>
+
+                Chụp lại
+
+            </button>
+
+            <button
+
+                id="download-btn"
+
+                type="button"
+
+                disabled>
+
+                Tải ảnh
+
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="script.js"></script>
 
 </body>
 
