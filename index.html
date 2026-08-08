@@ -1,44 +1,213 @@
 <!DOCTYPE html>
+
 <html lang="vi">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kietynho Bio</title>
-    <link rel="icon" href="images/icon-web.ico" type="image/x-icon">
-    <link rel="stylesheet" href="style.css"> 
+
+    <meta name="theme-color" content="#000000">
+
+    <title>Photo Booth</title>
+
+    <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
-    
-    <div class="particles-container"></div> 
-    
-    <div class="container">
-        <img src="images/avatar.jpg" alt="Ảnh Đại Diện" class="avatar">
-        
-        <h1>ANDY</h1>
-        <p class="tagline">Study | Developer | Game</p>
-        
-        
-        <h2>My Class</h2> 
-        
-        <div class="links class-links">
-            <a href="https://yourwebsite.com/10a5" target="_blank" class="link-button">Website 10A5</a>
-        </div>
-        
-        
-        <h2>My Information</h2>
-        
-        <div class="links info-links">
-            <a href="https://facebook.com/pham.kiet.9142" target="_blank" class="link-button">Facebook</a>
-            <a href="https://youtube.com/@PhamCteik" target="_blank" class="link-button">Kênh YouTube</a>
-            <a href="https://tiktok.com/@kan_aotuong" target="_blank" class="link-button">TikTok</a>
-        </div>
-        
-    </div>
-    
-    <script src="script.js"></script>
+
+    <main class="app">
+
+        <!-- Header -->
+
+        <header class="app-header">
+
+            <h1>Photo Booth</h1>
+
+        </header>
+
+        <!-- Camera -->
+
+        <section class="camera-section">
+
+            <div class="camera-container">
+
+                <video
+
+                    id="camera"
+
+                    autoplay
+
+                    playsinline
+
+                    muted>
+
+                </video>
+
+                <canvas id="canvas"></canvas>
+
+                <div id="camera-placeholder" class="camera-placeholder">
+
+                    <span>Camera chưa được bật</span>
+
+                </div>
+
+            </div>
+
+            <div class="camera-controls">
+
+                <button id="start-camera" type="button">
+
+                    Bật camera
+
+                </button>
+
+                <button id="capture-btn" type="button" disabled>
+
+                    Chụp ảnh
+
+                </button>
+
+                <button id="switch-camera" type="button" disabled>
+
+                    Đổi camera
+
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- Frame selection -->
+
+        <section class="frame-section">
+
+            <h2>Chọn khung</h2>
+
+            <div id="frame-list" class="frame-list">
+
+                <button
+
+                    class="frame-item active"
+
+                    type="button"
+
+                    data-frame="none">
+
+                    <span>Không khung</span>
+
+                </button>
+
+                <button
+
+                    class="frame-item"
+
+                    type="button"
+
+                    data-frame="frame1">
+
+                    <img
+
+                        src="frames/frame1.png"
+
+                        alt="Khung 1">
+
+                </button>
+
+                <button
+
+                    class="frame-item"
+
+                    type="button"
+
+                    data-frame="frame2">
+
+                    <img
+
+                        src="frames/frame2.png"
+
+                        alt="Khung 2">
+
+                </button>
+
+                <button
+
+                    class="frame-item"
+
+                    type="button"
+
+                    data-frame="frame3">
+
+                    <img
+
+                        src="frames/frame3.png"
+
+                        alt="Khung 3">
+
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- Preview -->
+
+        <section class="preview-section">
+
+            <h2>Ảnh đã chụp</h2>
+
+            <div class="preview-container">
+
+                <canvas id="result-canvas"></canvas>
+
+                <div
+
+                    id="preview-placeholder"
+
+                    class="preview-placeholder">
+
+                    <span>Ảnh sẽ xuất hiện ở đây</span>
+
+                </div>
+
+            </div>
+
+            <div class="result-controls">
+
+                <button
+
+                    id="retake-btn"
+
+                    type="button"
+
+                    disabled>
+
+                    Chụp lại
+
+                </button>
+
+                <button
+
+                    id="download-btn"
+
+                    type="button"
+
+                    disabled>
+
+                    Tải ảnh
+
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="main.js"></script>
+
 </body>
+
 </html>
-
-
-
-
