@@ -1,140 +1,174 @@
 const video = document.getElementById("camera");
+
 const resultCanvas = document.getElementById("result-canvas");
 
-const canvas =
-    document.getElementById("canvas") ||
-    document.createElement("canvas");
+const captureCanvas = document.createElement("canvas");
 
-const startCameraBtn =
-    document.getElementById("start-camera");
+const startCameraBtn = document.getElementById("start-camera");
 
-const captureBtn =
-    document.getElementById("capture-btn");
+const captureBtn = document.getElementById("capture-btn");
 
-const switchCameraBtn =
-    document.getElementById("switch-camera");
+const switchCameraBtn = document.getElementById("switch-camera");
 
-const retakeBtn =
-    document.getElementById("retake-btn");
+const retakeBtn = document.getElementById("retake-btn");
 
-const downloadBtn =
-    document.getElementById("download-btn");
+const downloadBtn = document.getElementById("download-btn");
 
-const cameraPlaceholder =
-    document.getElementById("camera-placeholder");
+const cameraPlaceholder = document.getElementById("camera-placeholder");
 
-const previewPlaceholder =
-    document.getElementById("preview-placeholder");
+const previewPlaceholder = document.getElementById("preview-placeholder");
 
-const countdown =
-    document.getElementById("countdown");
+const countdown = document.getElementById("countdown");
 
-const captureStatus =
-    document.getElementById("capture-status");
+const captureStatus = document.getElementById("capture-status");
 
-const frameItems =
-    document.querySelectorAll(".frame-item");
+const frameItems = document.querySelectorAll(".frame-item");
 
 const photoElements = [
+
     document.getElementById("photo-1"),
+
     document.getElementById("photo-2"),
+
     document.getElementById("photo-3")
+
 ];
 
 let stream = null;
+
 let facingMode = "user";
 
 let selectedFrame = null;
+
 let frameImage = null;
 
 let photos = [];
+
 let isCounting = false;
 
 const FRAME_PATHS = {
-    frame1: "images/frame1.png",
-    frame2: "images/frame2.png",
-    frame3: "images/frame3.png"
-};
 
+    frame1: "images/frame1.png",
+
+    frame2: "images/frame2.png",
+
+    frame3: "images/frame3.png"
+
+};
 
 function updateCaptureButton() {
 
-    if (!selectedFrame) {
+    if (isCounting) {
+
         captureBtn.disabled = true;
-        captureBtn.textContent = "Chọn khung trước";
+
         return;
+
+    }
+
+    if (!selectedFrame) {
+
+        captureBtn.disabled = true;
+
+        captureBtn.textContent = "Chọn khung trước";
+
+        return;
+
     }
 
     if (!stream) {
+
         captureBtn.disabled = true;
+
         captureBtn.textContent = "Bật camera trước";
+
         return;
+
     }
 
     if (photos.length >= 3) {
+
         captureBtn.disabled = true;
+
         captureBtn.textContent = "Đã chụp đủ 3 ảnh";
+
         return;
+
     }
 
     captureBtn.disabled = false;
 
-    captureBtn.textContent =
-        `Chụp ảnh ${photos.length + 1}`;
-}
+    captureBtn.textContent = `Chụp ảnh ${photos.length + 1}`;
 
+}
 
 async function startCamera() {
 
     try {
 
-        if (
-            !navigator.mediaDevices ||
-            !navigator.mediaDevices.getUserMedia
-        ) {
-            throw new Error(
-                "Trình duyệt không hỗ trợ camera."
-            );
+        if (!navigator.mediaDevices?.getUserMedia) {
+
+            throw new Error("Trình duyệt không hỗ trợ camera.");
+
         }
 
-        stopCamera();
+        if (stream) {
+
+            stream.getTracks().forEach(track => track.stop());
+
+            stream = null;
+
+        }
 
         startCameraBtn.disabled = true;
-        startCameraBtn.textContent =
-            "Đang mở camera...";
 
-        stream =
-            await navigator.mediaDevices.getUserMedia({
-                audio: false,
+        startCameraBtn.textContent = "Đang mở camera...";
 
-                video: {
-                    facingMode: facingMode,
+        const newStream = await navigator.mediaDevices.getUserMedia({
 
-                    width: {
-                        ideal: 1920
-                    },
+            audio: false,
 
-                    height: {
-                        ideal: 1080
-                    }
+            video: {
+
+                facingMode: {
+
+                    ideal: facingMode
+
+                },
+
+                width: {
+
+                    ideal: 1920
+
+                },
+
+                height: {
+
+                    ideal: 1080
+
                 }
-            });
+
+            }
+
+        });
+
+        stream = newStream;
 
         video.srcObject = stream;
 
         video.muted = true;
-        video.autoplay = true;
+
         video.playsInline = true;
+
+        video.autoplay = true;
 
         await video.play();
 
-        cameraPlaceholder.style.display =
-            "none";
+        cameraPlaceholder.style.display = "none";
 
         startCameraBtn.disabled = false;
 
-        startCameraBtn.textContent =
-            "Camera đang bật";
+        startCameraBtn.textContent = "Camera đang bật";
 
         switchCameraBtn.disabled = false;
 
@@ -142,61 +176,38 @@ async function startCamera() {
 
     } catch (error) {
 
-        console.error(
-            "Camera error:",
-            error
-        );
+        console.error(error);
+
+        stream = null;
 
         startCameraBtn.disabled = false;
 
-        startCameraBtn.textContent =
-            "Bật camera";
+        startCameraBtn.textContent = "Bật camera";
 
-        let message =
-            "Không thể bật camera.";
+        updateCaptureButton();
 
-        if (error.name === "NotAllowedError") {
+        alert(
 
-            message =
-                "Camera bị từ chối quyền.";
+            "Không thể bật camera.\n\n" +
 
-        } else if (
-            error.name === "NotFoundError"
-        ) {
+            error.name +
 
-            message =
-                "Không tìm thấy camera.";
+            "\n" +
 
-        } else if (
-            error.name === "NotReadableError"
-        ) {
+            error.message
 
-            message =
-                "Camera đang được ứng dụng khác sử dụng.";
+        );
 
-        } else {
-
-            message +=
-                "\n\n" +
-                error.name +
-                "\n" +
-                error.message;
-        }
-
-        alert(message);
     }
-}
 
+}
 
 function stopCamera() {
 
     if (stream) {
 
-        stream
-            .getTracks()
-            .forEach(track => {
-                track.stop();
-            });
+        stream.getTracks().forEach(track => track.stop());
+
     }
 
     stream = null;
@@ -204,33 +215,39 @@ function stopCamera() {
     video.srcObject = null;
 
     switchCameraBtn.disabled = true;
-}
 
+    updateCaptureButton();
+
+}
 
 async function switchCamera() {
 
-    if (!stream || isCounting) {
-        return;
-    }
+    if (isCounting) return;
 
     facingMode =
+
         facingMode === "user"
+
             ? "environment"
+
             : "user";
 
     await startCamera();
+
 }
 
+function selectFrame(name) {
 
-function selectFrame(frameName) {
-
-    selectedFrame = frameName;
+    selectedFrame = name;
 
     frameItems.forEach(item => {
 
         item.classList.toggle(
+
             "active",
-            item.dataset.frame === frameName
+
+            item.dataset.frame === name
+
         );
 
     });
@@ -240,178 +257,189 @@ function selectFrame(frameName) {
     frameImage.onload = () => {
 
         captureStatus.textContent =
+
             "Đã chọn khung. Bạn có thể bắt đầu chụp.";
 
         updateCaptureButton();
+
     };
 
     frameImage.onerror = () => {
 
         frameImage = null;
 
-        captureStatus.textContent =
-            "Không thể tải khung ảnh.";
-
         captureBtn.disabled = true;
+
+        captureStatus.textContent =
+
+            "Không tải được khung ảnh.";
+
     };
 
-    frameImage.src =
-        FRAME_PATHS[frameName];
+    frameImage.src = FRAME_PATHS[name];
+
 }
 
+function sleep(ms) {
 
-function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 
-    return new Promise(resolve => {
-        setTimeout(resolve, ms);
-    });
 }
 
+async function startCountdown(photoNumber) {
 
-async function countdownBeforePhoto(photoNumber) {
+    if (isCounting) return;
+
+    if (!stream) {
+
+        alert("Camera chưa được bật.");
+
+        return;
+
+    }
+
+    if (!selectedFrame) {
+
+        alert("Vui lòng chọn khung trước khi chụp.");
+
+        return;
+
+    }
 
     isCounting = true;
 
-    captureBtn.disabled = true;
-    switchCameraBtn.disabled = true;
-    startCameraBtn.disabled = true;
+    updateCaptureButton();
 
     captureStatus.textContent =
+
         `Đang chụp ảnh ${photoNumber}`;
 
     countdown.style.display = "flex";
 
-    for (
-        let number = 3;
-        number >= 1;
-        number--
-    ) {
+    countdown.style.zIndex = "100";
 
-        countdown.textContent = number;
+    for (let i = 3; i >= 1; i--) {
 
-        await wait(1000);
+        countdown.textContent = i;
+
+        await sleep(1000);
+
     }
+
+    countdown.textContent = "📸";
+
+    await sleep(250);
 
     countdown.textContent = "";
 
     countdown.style.display = "none";
 
-    const success =
-        takePhoto(photoNumber);
+    const success = takePhoto(photoNumber);
 
     isCounting = false;
-
-    startCameraBtn.disabled = false;
-    switchCameraBtn.disabled = false;
 
     if (!success) {
 
         captureStatus.textContent =
-            "Không thể chụp ảnh. Vui lòng thử lại.";
 
-        updateCaptureButton();
+            "Chụp ảnh thất bại. Hãy thử lại.";
 
-        return;
-    }
-
-    if (photos.length < 3) {
+    } else if (photos.length < 3) {
 
         captureStatus.textContent =
-            `Ảnh ${photoNumber} đã chụp. Nhấn nút để chụp ảnh tiếp theo.`;
+
+            `Đã chụp ảnh ${photoNumber}. Nhấn nút để chụp ảnh tiếp theo.`;
 
     } else {
 
         captureStatus.textContent =
+
             "Đã chụp đủ 3 ảnh. Đang ghép ảnh...";
+
     }
 
     updateCaptureButton();
+
 }
 
+function takePhoto(number) {
 
-function takePhoto(photoNumber) {
-
-    const width =
-        video.videoWidth;
-
-    const height =
-        video.videoHeight;
-
-    if (!width || !height) {
-
-        alert(
-            "Không lấy được hình ảnh từ camera."
-        );
+    if (!video.videoWidth || !video.videoHeight) {
 
         return false;
+
     }
 
-    canvas.width = width;
-    canvas.height = height;
+    const width = video.videoWidth;
 
-    const ctx =
-        canvas.getContext("2d");
+    const height = video.videoHeight;
 
-    if (!ctx) {
+    captureCanvas.width = width;
 
-        alert(
-            "Không thể tạo Canvas."
-        );
+    captureCanvas.height = height;
 
-        return false;
-    }
+    const ctx = captureCanvas.getContext("2d");
 
-    ctx.clearRect(
-        0,
-        0,
-        width,
-        height
-    );
-
-    ctx.save();
+    ctx.clearRect(0, 0, width, height);
 
     if (facingMode === "user") {
 
-        ctx.translate(
+        ctx.save();
+
+        ctx.translate(width, 0);
+
+        ctx.scale(-1, 1);
+
+        ctx.drawImage(
+
+            video,
+
+            0,
+
+            0,
+
             width,
-            0
+
+            height
+
         );
 
-        ctx.scale(
-            -1,
-            1
+        ctx.restore();
+
+    } else {
+
+        ctx.drawImage(
+
+            video,
+
+            0,
+
+            0,
+
+            width,
+
+            height
+
         );
+
     }
 
-    ctx.drawImage(
-        video,
-        0,
-        0,
-        width,
-        height
+    const image = captureCanvas.toDataURL(
+
+        "image/jpeg",
+
+        0.95
+
     );
 
-    ctx.restore();
+    photos[number - 1] = image;
 
-    const imageData =
-        canvas.toDataURL(
-            "image/jpeg",
-            0.98
-        );
+    if (photoElements[number - 1]) {
 
-    photos[photoNumber - 1] =
-        imageData;
+        photoElements[number - 1].src = image;
 
-    const photoElement =
-        photoElements[photoNumber - 1];
+        photoElements[number - 1].style.display = "block";
 
-    if (photoElement) {
-
-        photoElement.src =
-            imageData;
-
-        photoElement.style.display =
-            "block";
     }
 
     if (photos.length === 3) {
@@ -422,443 +450,341 @@ function takePhoto(photoNumber) {
 
         retakeBtn.disabled = false;
 
-        setTimeout(() => {
-
-            document
-                .querySelector(".preview-section")
-                ?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                });
-
-        }, 300);
     }
 
     return true;
-}
 
+}
 
 function loadImage(src) {
 
-    return new Promise(
-        (resolve, reject) => {
+    return new Promise((resolve, reject) => {
 
-            const image =
-                new Image();
+        const img = new Image();
 
-            image.onload = () => {
-                resolve(image);
-            };
+        img.onload = () => resolve(img);
 
-            image.onerror = reject;
+        img.onerror = () => reject();
 
-            image.src = src;
-        }
-    );
+        img.src = src;
+
+    });
+
 }
 
+function drawCover(ctx, image, x, y, width, height) {
 
-function drawCoverImage(
-    ctx,
-    image,
-    x,
-    y,
-    width,
-    height
-) {
+    const sourceRatio =
 
-    const imageRatio =
         image.naturalWidth /
+
         image.naturalHeight;
 
     const targetRatio =
+
         width / height;
 
-    let sourceWidth =
-        image.naturalWidth;
+    let sourceWidth = image.naturalWidth;
 
-    let sourceHeight =
-        image.naturalHeight;
+    let sourceHeight = image.naturalHeight;
 
     let sourceX = 0;
+
     let sourceY = 0;
 
-    if (imageRatio > targetRatio) {
+    if (sourceRatio > targetRatio) {
 
         sourceWidth =
+
             image.naturalHeight *
+
             targetRatio;
 
         sourceX =
-            (
-                image.naturalWidth -
-                sourceWidth
-            ) / 2;
+
+            (image.naturalWidth - sourceWidth) / 2;
 
     } else {
 
         sourceHeight =
+
             image.naturalWidth /
+
             targetRatio;
 
         sourceY =
-            (
-                image.naturalHeight -
-                sourceHeight
-            ) / 2;
+
+            (image.naturalHeight - sourceHeight) / 2;
+
     }
 
     ctx.drawImage(
+
         image,
 
         sourceX,
+
         sourceY,
+
         sourceWidth,
+
         sourceHeight,
 
         x,
-        y,
-        width,
-        height
-    );
-}
 
+        y,
+
+        width,
+
+        height
+
+    );
+
+}
 
 async function renderFinalImage() {
 
     if (
+
         photos.length !== 3 ||
+
         !frameImage
+
     ) {
+
         return;
+
     }
 
     try {
 
-        const images =
-            await Promise.all(
-                photos.map(
-                    src => loadImage(src)
-                )
-            );
+        const images = await Promise.all(
+
+            photos.map(loadImage)
+
+        );
 
         const width =
+
             frameImage.naturalWidth;
 
         const height =
+
             frameImage.naturalHeight;
 
-        if (!width || !height) {
-            throw new Error(
-                "Frame không có kích thước hợp lệ."
-            );
-        }
+        resultCanvas.width = width;
 
-        resultCanvas.width =
-            width;
-
-        resultCanvas.height =
-            height;
+        resultCanvas.height = height;
 
         const ctx =
+
             resultCanvas.getContext("2d");
 
-        ctx.clearRect(
-            0,
-            0,
-            width,
-            height
-        );
-
         const slotHeight =
+
             height / 3;
 
-        for (
-            let i = 0;
-            i < 3;
-            i++
-        ) {
+        for (let i = 0; i < 3; i++) {
 
-            const y =
-                Math.round(
-                    i * slotHeight
-                );
+            drawCover(
 
-            const nextY =
-                Math.round(
-                    (i + 1) *
-                    slotHeight
-                );
-
-            const slotHeightActual =
-                nextY - y;
-
-            drawCoverImage(
                 ctx,
+
                 images[i],
+
                 0,
-                y,
+
+                i * slotHeight,
+
                 width,
-                slotHeightActual
+
+                slotHeight
+
             );
+
         }
 
         ctx.drawImage(
+
             frameImage,
+
             0,
+
             0,
+
             width,
+
             height
+
         );
 
         previewPlaceholder.style.display =
+
             "none";
 
         captureStatus.textContent =
-            "Đã ghép xong 3 ảnh.";
+
+            "Đã ghép xong ảnh.";
 
     } catch (error) {
 
-        console.error(
-            "Render error:",
-            error
-        );
+        console.error(error);
 
-        alert(
-            "Lỗi khi ghép ảnh:\n\n" +
-            error.message
-        );
+        alert("Không thể ghép ảnh.");
+
     }
+
 }
-
-
-async function capturePhoto() {
-
-    if (!selectedFrame) {
-
-        alert(
-            "Vui lòng chọn khung trước khi chụp."
-        );
-
-        return;
-    }
-
-    if (!stream) {
-
-        alert(
-            "Vui lòng bật camera trước."
-        );
-
-        return;
-    }
-
-    if (isCounting) {
-        return;
-    }
-
-    if (photos.length >= 3) {
-        return;
-    }
-
-    const photoNumber =
-        photos.length + 1;
-
-    await countdownBeforePhoto(
-        photoNumber
-    );
-}
-
 
 function resetPhotos() {
 
     photos = [];
 
-    frameImage = frameImage;
+    photoElements.forEach(img => {
 
-    photoElements.forEach(image => {
+        if (img) {
 
-        if (image) {
+            img.removeAttribute("src");
 
-            image.removeAttribute("src");
+            img.style.display = "none";
 
-            image.style.display =
-                "none";
         }
+
     });
 
     resultCanvas.width = 1;
+
     resultCanvas.height = 1;
 
-    previewPlaceholder.style.display =
-        "flex";
+    previewPlaceholder.style.display = "flex";
 
     downloadBtn.disabled = true;
+
     retakeBtn.disabled = true;
 
     captureStatus.textContent =
+
         selectedFrame
+
             ? "Đã chọn khung. Bạn có thể bắt đầu chụp."
-            : "Chọn khung trước khi chụp";
+
+            : "Chọn khung trước khi chụp.";
 
     updateCaptureButton();
+
 }
-
-
-function retakePhoto() {
-
-    resetPhotos();
-
-    if (!stream) {
-        startCamera();
-    }
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-}
-
 
 function downloadPhoto() {
 
-    if (
-        photos.length !== 3 ||
-        !resultCanvas.width ||
-        !resultCanvas.height
-    ) {
+    resultCanvas.toBlob(blob => {
 
-        alert(
-            "Bạn chưa hoàn thành 3 ảnh."
-        );
+        if (!blob) return;
 
-        return;
-    }
+        const url =
 
-    resultCanvas.toBlob(
-        blob => {
+            URL.createObjectURL(blob);
 
-            if (!blob) {
+        const link =
 
-                alert(
-                    "Không thể tạo ảnh."
-                );
+            document.createElement("a");
 
-                return;
-            }
+        link.href = url;
 
-            const url =
-                URL.createObjectURL(blob);
+        link.download =
 
-            const link =
-                document.createElement("a");
+            `photobooth-${Date.now()}.png`;
 
-            const timestamp =
-                new Date()
-                    .toISOString()
-                    .replace(
-                        /[:.]/g,
-                        "-"
-                    );
+        document.body.appendChild(link);
 
-            link.href = url;
+        link.click();
 
-            link.download =
-                `photobooth-${timestamp}.png`;
+        link.remove();
 
-            document.body.appendChild(link);
+        setTimeout(() => {
 
-            link.click();
+            URL.revokeObjectURL(url);
 
-            link.remove();
+        }, 1000);
 
-            setTimeout(() => {
+    }, "image/png");
 
-                URL.revokeObjectURL(url);
-
-            }, 1000);
-
-        },
-        "image/png"
-    );
 }
-
 
 frameItems.forEach(item => {
 
-    item.addEventListener(
-        "click",
-        () => {
+    item.addEventListener("click", () => {
 
-            if (isCounting) {
-                return;
-            }
+        if (!isCounting) {
 
-            selectFrame(
-                item.dataset.frame
-            );
+            selectFrame(item.dataset.frame);
+
         }
-    );
+
+    });
+
 });
 
-
 startCameraBtn.addEventListener(
-    "click",
-    startCamera
-);
 
+    "click",
+
+    startCamera
+
+);
 
 captureBtn.addEventListener(
+
     "click",
-    capturePhoto
-);
 
-
-switchCameraBtn.addEventListener(
-    "click",
-    switchCamera
-);
-
-
-retakeBtn.addEventListener(
-    "click",
-    retakePhoto
-);
-
-
-downloadBtn.addEventListener(
-    "click",
-    downloadPhoto
-);
-
-
-document.addEventListener(
-    "visibilitychange",
     () => {
 
-        if (document.hidden) {
-            stopCamera();
-        }
+        startCountdown(photos.length + 1);
+
     }
+
 );
 
+switchCameraBtn.addEventListener(
 
-window.addEventListener(
-    "beforeunload",
-    stopCamera
+    "click",
+
+    switchCamera
+
 );
 
+retakeBtn.addEventListener(
 
-cameraPlaceholder.style.display =
-    "flex";
+    "click",
 
-countdown.style.display =
-    "none";
+    () => {
 
-previewPlaceholder.style.display =
-    "flex";
+        resetPhotos();
 
-captureStatus.textContent =
-    "Chọn khung trước khi chụp";
+        window.scrollTo({
+
+            top: 0,
+
+            behavior: "smooth"
+
+        });
+
+    }
+
+);
+
+downloadBtn.addEventListener(
+
+    "click",
+
+    downloadPhoto
+
+);
+
+cameraPlaceholder.style.display = "flex";
+
+countdown.style.display = "none";
+
+previewPlaceholder.style.display = "flex";
 
 captureBtn.disabled = true;
 
@@ -868,9 +794,14 @@ retakeBtn.disabled = true;
 
 downloadBtn.disabled = true;
 
-photoElements.forEach(image => {
+photoElements.forEach(img => {
 
-    if (image) {
-        image.style.display = "none";
+    if (img) {
+
+        img.style.display = "none";
+
     }
+
 });
+
+updateCaptureButton();
